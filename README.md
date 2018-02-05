@@ -21,7 +21,7 @@ var myOmnibox = new ChromexOmnibox({
                 // fires if user hits enter after typing 'fire', or 'fire' plus
                 // a space, plus anything else
             },
-            callback : function(currentWord, args, result){
+            onInput : function(currentWord, args, result){
                 // starts to fire once the keyword 'fire' is entered, and every
                 // input event after that (as long a `fire` is the first keyword)
             },
@@ -45,7 +45,7 @@ var myOmnibox = new ChromexOmnibox({
                 // fired if `one` is typed as the first keyword, and any subsequent actions
                 // are NOT matched (after user hits enter)
             },
-            callback : function(currentWord, args, result){
+            onInput : function(currentWord, args, result){
                 // fired on every keyup after `one` is typed
             },
             suggestions : function(currentWord, args, result){
@@ -59,7 +59,7 @@ var myOmnibox = new ChromexOmnibox({
                         // key is pressed (note: the onSubmit for the parent `one` action
                         // is NOT called in this case)
                     },
-                    callback : function(currentWord, args, result){
+                    onInput : function(currentWord, args, result){
                         // fired on every keyup after `one two` is typed
                     },
                     suggestions : function(currentWord, args, result){
@@ -88,7 +88,7 @@ The `word` property is what is used to match what the user has typed into the om
 - By passing a simple **string**, the comparision will be made *case-insensitive*
 - By passing a RegExp object, the comparison will be done using RegExp.test(input)
 - By passing a function, the first argument will be the users input, and the function should return true to indicate a match, otherwise false
-- By passing `null`, the callback property will fire on every input and the onSubmit property will fire on `enter`, regardless of the user's input. This is what you should use to match _anything_.
+- By passing `null`, the onInput property will fire on every input and the onSubmit property will fire on `enter`, regardless of the user's input. This is what you should use to match _anything_.
 
 **Note:** if you use `null` as a action word, it should be listed last in the actions array. Otherwise, it will take precendence over any other action.
 
@@ -97,11 +97,11 @@ The ChromexOmnibox class also exposes a static method `like` that can be used as
 { word : ChromexOmnibox.like('helloworld') }
 // h, he, hel, ...helloworld will all be matches
 ```
-#### action.callback
+#### action.onInput
 ```javascript
-{ callback : function(currentWord, args, session){} }
+{ onInput : function(currentWord, args, session){} }
 ```
-The `callback` property will fire on every user keypress after the keyword in the action has been matched.
+The `onInput` property will fire on every user keypress after the keyword in the action has been matched.
 - **currentWord**: the matched keyword for the action
 - **args**: an array of words currently entered into the omnibox (separated by spaces), not including the matched keyword
 - **session**: an object with generic omnibox action data
@@ -109,10 +109,10 @@ The `callback` property will fire on every user keypress after the keyword in th
     - **args**: the full array of space separated words in the omnibox
     - **suggestions**: an array of suggestion objects returned from the `suggestions` property
 
-Since the `callback` property is fired on every keyup, you can utilize it, along with the `session` argument object to maintain a _state_ of the current omnibox input session. The `session` property is passed to all action callbacks (`callback`, `onSubmit`, `suggestions`).
+Since the `onInput` property is fired on every keyup, you can utilize it, along with the `session` argument object to maintain a _state_ of the current omnibox input session. The `session` property is passed to all action callbacks (`onInput`, `onSubmit`, `suggestions`).
 ```javascript
 {
-    callback : function(currentWord, args, session){
+    onInput : function(currentWord, args, session){
         session.userId = currentWord;
     },
     onSubmit : function(session){
@@ -135,7 +135,7 @@ Since the `callback` property is fired on every keyup, you can utilize it, along
     }
 }
 ```
-The `suggestions` property should be a function that returns an array of `suggestion` objects that will fill Chrome's Omnibox autocomplete list. The function has the same arguments as the `callback` property function. The format of the returned suggestion objects is what is documented on the Chrome Extension documentation page: https://developer.chrome.com/extensions/omnibox#type-SuggestResult
+The `suggestions` property should be a function that returns an array of `suggestion` objects that will fill Chrome's Omnibox autocomplete list. The function has the same arguments as the `onInput` property function. The format of the returned suggestion objects is what is documented on the Chrome Extension documentation page: https://developer.chrome.com/extensions/omnibox#type-SuggestResult
 
 Keep in mind, the `content` property of the `suggestion` object will be autopopulated into the Omnibox if the user arrows down into it, so make sure that the value of `content` matches what you would want to be submitted.
 
@@ -175,7 +175,7 @@ var myOmnibox = new ChromexOmnibox({
         {
             // on any non-matched action
             word : null,
-            callback : function(word, args, session){
+            onInput : function(word, args, session){
                 session.word = word;
             },
             suggestions : function(word, args, session){
@@ -209,6 +209,6 @@ var myOmnibox = new ChromexOmnibox({
     ]
 });
 ```
-With the above implementation, if the user enters 'help' in the omnibox and hits submit, the `help` callback will fire. If the user enters `person` into the omnibox and hits enter, they will be taken to the webster dictionary page for `person`. If the user enters `person synonym` (or anything like synonym, e.g. `person syn`), and hits enter, they will be taken to the thesaurus page for `person`. Note that this implementation technically doesn't allow the user to search the definition for the word `help`, but you get the idea.
+With the above implementation, if the user enters 'help' in the omnibox and hits submit, the `help` onSubmit callback will fire. If the user enters `person` into the omnibox and hits enter, they will be taken to the webster dictionary page for `person`. If the user enters `person synonym` (or anything like synonym, e.g. `person syn`), and hits enter, they will be taken to the thesaurus page for `person`. Note that this implementation technically doesn't allow the user to search the definition for the word `help`, but you get the idea.
 ### Notes
 Each entry in the returned suggestions array will get some text prepended to its `content` property. Specifically, you'll see `suggest <index>:` prepended. So, if a suggestion's content property is `user` and you arrow into the autocomplete suggestion, you might see `suggest 1:user` in the Omnibox. The reason for this is Chrome doesn't like having a suggestion's `content` property be the exact same as what is in the Omnibox (the suggestion simply wont show). This is actually undesirable (IMO) from a UX perspective as the autocomplete suggestion can be a more descriptive version of what the action would execute. The `suggest <index>:` gets stripped out if the user hits enter, so you don't have to worry about having that show up in your action callbacks.
