@@ -1,6 +1,6 @@
 {
   "name": "chromex-omnibox",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "A chrome extension library to help integrating with chrome's omnibox",
   "main": "index.js",
   "repository" : "github:ansonlouis/chromex-omnibox",
