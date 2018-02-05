@@ -3,7 +3,9 @@ Chromex-Omnibox *In Development*
 A simple javascript library for easily integrating Chrome's Omnibox API into your Chrome Extension.
 
 # Installation
-`npm install chromex-omnibox`
+```bash
+npm install chromex-omnibox
+```
 The Chromex-Omnibox implementation is written in es6 import/export style javascript. However, Chrome supports this natively so even if you do not use some sort of bundler/transpiler with your extension, you should be able to use it.
 
 # HOW TO

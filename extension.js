@@ -23,7 +23,7 @@ var myOmnibox = new ChromexOmnibox({
         {
             // on any non-matched action
             word : null,
-            callback : function(word, args, session){
+            onInput : function(word, args, session){
                 session.word = word;
             },
             suggestions : function(word, args, session){

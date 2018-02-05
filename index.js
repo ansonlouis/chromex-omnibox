@@ -57,16 +57,17 @@ export class ChromexOmnibox{
       actionObject.every(function(action){
         if(this.testActionWord(word, action.word)){
           resultObject.action = action;
-          if(action.callback){
-            action.callback.call(this, word, inputArray, resultObject);
+          if(action.onInput){
+            action.onInput.call(this, word, inputArray, resultObject);
           }
           if(action.suggestions){
             var suggestions = action.suggestions.call(this, word, inputArray, resultObject);
             if(suggestions && suggestions instanceof Array){
-              resultObject.suggestions = suggestions.concat(resultObject.suggestions || []).map(function(suggestion, index){
+              suggestions = suggestions.map(function(suggestion, index){
                 suggestion.content = "suggest " + (index+1) + ":" + suggestion.content;
                 return suggestion;
               });
+              resultObject.suggestions = suggestions.concat(resultObject.suggestions || []);
             }
           }
           if(action.actions){
