@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "A chrome extension library to help integrating with chrome's omnibox",
   "main": "index.js",
+  "repository" : "github:ansonlouis/chromex-omnibox",
   "author": "anson <ansonairoldi@gmail.com>",
-  "license": "ISC"
+  "license": "ISC",
+  "files" : [
+    "index.js"
+  ]
 }

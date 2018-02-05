@@ -1,0 +1,20 @@
+{
+  "name": "Chromex Omnibox Test Extension",
+  "version": "1.0.0",
+  "manifest_version": 2,
+  "permissions": [
+    "tabs",
+    "activeTab"
+  ],
+
+  // our background page which is essentially like a server
+  "background": {
+    "persistent": true,
+    "page": "./test-extension.html"
+  },
+
+  "omnibox" : {
+    "keyword" : "x"
+  }
+
+}

@@ -1,17 +1,8 @@
-// omnibox.js
 
 
-function ChromeOmnibox(options){
+export class ChromexOmnibox{
 
-  var getActiveTab = function(callback){
-    chrome.tabs.query({active:true, currentWindow:true}, function(data){
-      data = data.length ? data[0] : null;
-      callback && callback(data);
-    });
-  };
-
-
-  this.init = function(options){
+  constructor(options){
 
     var _this = this;
     this.currentSearch = "";
@@ -20,14 +11,11 @@ function ChromeOmnibox(options){
 
     // array of top level actions (associated with the first
     // word in the omnibox)
-    this.actions = options.actions || [
-
-    ];
+    this.actions = options.actions || [];
 
 
-    var _this = this;
     var setTab = function(){
-      getActiveTab(function(tab){
+      ChromexOmnibox.getActiveTab(function(tab){
         _this.tabId = tab.id;
       });
     };
@@ -42,7 +30,7 @@ function ChromeOmnibox(options){
   };
 
 
-  this.testActionWord = function(word, action){
+  testActionWord(word, action){
     if(word){
       if(typeof(action) === "string" && word.toLowerCase() === action.toLowerCase()){
         return true;
@@ -59,7 +47,7 @@ function ChromeOmnibox(options){
     }
   };
 
-  this.parseAction = function(inputArray, resultObject, actionObject){
+  parseAction(inputArray, resultObject, actionObject){
 
     if(inputArray.length && resultObject){
 
@@ -75,7 +63,10 @@ function ChromeOmnibox(options){
           if(action.suggestions){
             var suggestions = action.suggestions.call(this, word, inputArray, resultObject);
             if(suggestions && suggestions instanceof Array){
-              resultObject.suggestions = suggestions.concat(resultObject.suggestions || []);
+              resultObject.suggestions = suggestions.concat(resultObject.suggestions || []).map(function(suggestion, index){
+                suggestion.content = "suggest " + (index+1) + ":" + suggestion.content;
+                return suggestion;
+              });
             }
           }
           if(action.actions){
@@ -91,7 +82,7 @@ function ChromeOmnibox(options){
     return resultObject;
   };
 
-  this.getArgsFromInput = function(input){
+  getArgsFromInput(input){
     // the "suggest" prefix is just because chrome doesn't like multiple suggestion objects
     // with the same key, nor a suggestion object with a key that is the same as what the user
     // has typed into the omnibox...in these cases it won't respect those suggestions and will
@@ -100,7 +91,7 @@ function ChromeOmnibox(options){
     return input.split(/\s+/g);
   };
 
-  this.parseInput = function(input){
+  parseInput(input){
     var result = {};
     if(input.length){
 
@@ -113,7 +104,7 @@ function ChromeOmnibox(options){
     }
   };
 
-  this.input = function(text){
+  input(text){
 
     this.currentSearch = text.trim();
 
@@ -128,41 +119,40 @@ function ChromeOmnibox(options){
       suggestions.push(this.defaultSuggestion);
     }
 
-    console.log("%cChromeOmnibox: %csuggestions %o", "color:orange;", "", suggestions);
+    console.log("%ChromexOmnibox: %csuggestions %o", "color:orange;", "", suggestions);
 
     return suggestions;
 
   };
 
 
-  this.submit = function(text, disp){
+  submit(text, disp){
     var parsed = this.parseInput(text);
     if(parsed){
-      console.log("%cChromeOmnibox: %conSubmit %o", "color:orange;", "", parsed);
+      console.log("%ChromexOmnibox: %conSubmit %o", "color:orange;", "", parsed);
       this.runFn(parsed);
     }
   };
 
-  this.runFn = function(parsed){
+  runFn(parsed){
     if(parsed.action && parsed.action.onSubmit){
       parsed.action.onSubmit.call(this, parsed);
     }
   };
 
-
-  this.init(options);
-
 };
 
-ChromeOmnibox.like = function(word){
+
+ChromexOmnibox.getActiveTab = function(callback){
+  chrome.tabs.query({active:true, currentWindow:true}, function(data){
+    data = data.length ? data[0] : null;
+    callback && callback(data);
+  });
+};
+
+ChromexOmnibox.like = function(word){
   word = word.toLowerCase();
   return function(input){
     return word.indexOf(input.toLowerCase()) === 0;
   }
 };
-
-
-if(typeof(module) !== "undefined"){
-  module.exports = ChromeOmnibox;
-}
-
